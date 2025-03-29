@@ -8,6 +8,7 @@ from fourwire import FourWire
 
 import adafruit_bme680
 import adafruit_ssd1681
+from adafruit_max1704x import MAX17048
 
 displayio.release_displays()
 
@@ -68,6 +69,9 @@ g.append(tile_grid)
 display.root_group = g
 display.refresh()
 
+# battery
+max17048 = MAX17048(i2c)
+
 while True:
     print("\nTemperature: %0.1f F" % ((bme680.temperature + temperature_offset) * 9 / 5 + 32))
     print("Gas: %d ohm" % bme680.gas)
@@ -76,10 +80,9 @@ while True:
     print("Altitude: %0.2f meters" % bme680.altitude)
 
     mem_usage = gc.mem_alloc() / (gc.mem_alloc()+gc.mem_free()) * 100
-    bat = analogio.AnalogIn(board.A6)
 
     print("mem: {:.2f}%".format(mem_usage))
-    print("bat: {:.2f}%".format(bat.value / 65535 * 100))
-    print("bat: {:.2f}V".format(bat.value / 65535 * 3.3))
+    print(f"Battery voltage: {max17048.cell_voltage:.2f} V")
+    print(f"Battery percentage: {max17048.cell_percent:.1f} %")
 
     time.sleep(1)
