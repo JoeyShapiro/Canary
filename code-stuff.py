@@ -1,17 +1,12 @@
 import time
-
-import board
-
-import adafruit_bme680
 import gc
-import analogio
-
-import time
 
 import board
+import analogio
 import displayio
 from fourwire import FourWire
 
+import adafruit_bme680
 import adafruit_ssd1681
 
 displayio.release_displays()
@@ -57,8 +52,6 @@ with open("/display-ruler.bmp", "rb") as f:
 
     display.root_group = g
     display.refresh()
-
-    time.sleep(30)
 
 while True:
     print("\nTemperature: %0.1f F" % ((bme680.temperature + temperature_offset) * 9 / 5 + 32))
