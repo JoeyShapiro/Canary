@@ -44,21 +44,36 @@ bme680.sea_level_pressure = 1013.25
 # separate temperature sensor to calibrate this one.
 temperature_offset = -5
 
-with open("/display-ruler.bmp", "rb") as f:
-    pic = displayio.OnDiskBitmap(f)
-    # CircuitPython 7 compatible only
-    t = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
-    g.append(t)
+# Create a bitmap with 2 colors
+bitmap = displayio.Bitmap(128, 128, 3)  # 16x16 pixels, 2 colors
 
-    display.root_group = g
-    display.refresh()
+# Create a palette with the colors
+palette = displayio.Palette(3)
+palette[0] = 0x000000  # Black
+palette[1] = 0xFFFFFF  # White
+palette[2] = 0xFF0000  # Red
+
+# fill white
+for x in range(128):
+    for y in range(128):
+        bitmap[x, y] = 1
+
+# Create the TileGrid using the bitmap and palette
+tile_grid = displayio.TileGrid(bitmap, pixel_shader=palette)
+tile_grid.x = 0  # Position on screen
+tile_grid.y = 0
+
+g.append(tile_grid)
+
+display.root_group = g
+display.refresh()
 
 while True:
     print("\nTemperature: %0.1f F" % ((bme680.temperature + temperature_offset) * 9 / 5 + 32))
     print("Gas: %d ohm" % bme680.gas)
     print("Humidity: %0.1f %%" % bme680.relative_humidity)
     print("Pressure: %0.3f hPa" % bme680.pressure)
-    print("Altitude = %0.2f meters" % bme680.altitude)
+    print("Altitude: %0.2f meters" % bme680.altitude)
 
     mem_usage = gc.mem_alloc() / (gc.mem_alloc()+gc.mem_free()) * 100
     bat = analogio.AnalogIn(board.A6)
