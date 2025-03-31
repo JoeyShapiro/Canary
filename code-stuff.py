@@ -55,16 +55,25 @@ palette[1] = 0xFFFFFF  # White
 palette[2] = 0xFF0000  # Red
 
 # fill white
-for x in range(128):
-    for y in range(128):
-        bitmap[x, y] = 1
+# for x in range(128):
+#     for y in range(128):
+#         bitmap[x, y] = 1
+
+for i in range(5):
+    with open(f"/numbers/{i}.bmp", "rb") as f:
+        pic = displayio.OnDiskBitmap(f)
+        tile_grid = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
+
+        tile_grid.x = i*20
+        tile_grid.y = i*20
+        g.append(tile_grid)
 
 # Create the TileGrid using the bitmap and palette
-tile_grid = displayio.TileGrid(bitmap, pixel_shader=palette)
-tile_grid.x = 0  # Position on screen
-tile_grid.y = 0
+# tile_grid = displayio.TileGrid(bitmap, pixel_shader=palette)
+# tile_grid.x = 0  # Position on screen
+# tile_grid.y = 0
 
-g.append(tile_grid)
+# g.append(tile_grid)
 
 display.root_group = g
 display.refresh()
