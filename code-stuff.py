@@ -59,16 +59,16 @@ palette[2] = 0xFF0000  # Red
 #     for y in range(128):
 #         bitmap[x, y] = 1
 
-# index or red might be different
-# but how does it know some of them, and the pallette is included
-# maybe code though, this exmamole doesnt work
+numbers = [
+    open(f"/numbers/{i}.bmp", "rb") for i in [ 0, 1, 2, 3, 4 ]
+]
 
-f = open(f"/numbers/0.bmp", "rb")
-pic = displayio.OnDiskBitmap(f)
-tile_grid = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
-tile_grid.x = 0*20
-tile_grid.y = 0*20
-g.append(tile_grid)
+for i, f in enumerate(numbers):
+    pic = displayio.OnDiskBitmap(f)
+    tile_grid = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
+    tile_grid.x = i*20
+    tile_grid.y = 0
+    g.append(tile_grid)
 
 # Create the TileGrid using the bitmap and palette
 # tile_grid = displayio.TileGrid(bitmap, pixel_shader=palette)
@@ -79,7 +79,9 @@ g.append(tile_grid)
 
 display.root_group = g
 display.refresh()
-f.close()
+
+for f in numbers:
+    f.close()
 
 for i in range(5):
     with open(f"/numbers/{i}.bmp", "rb") as f:
