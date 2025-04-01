@@ -68,40 +68,15 @@ for i, f in enumerate(numbers):
     pic = displayio.OnDiskBitmap(f)
     tile_grid = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
     # convert i to x y position
-    tile_grid.x = int(i / 12)
-    tile_grid.y = int(i % 12)
+    tile_grid.x = int(i % 12) * 16
+    tile_grid.y = int(i / 12) * 16
     g.append(tile_grid)
-
-# Create the TileGrid using the bitmap and palette
-# tile_grid = displayio.TileGrid(bitmap, pixel_shader=palette)
-# tile_grid.x = 0  # Position on screen
-# tile_grid.y = 0
-
-# g.append(tile_grid)
 
 display.root_group = g
 display.refresh()
 
 for f in numbers:
     f.close()
-
-for i in range(5):
-    with open(f"/numbers/{i}.bmp", "rb") as f:
-        pic = displayio.OnDiskBitmap(f)
-        tile_grid = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
-        tile_grid.x = i*20
-        tile_grid.y = i*20
-        g.append(tile_grid)
-
-# Create the TileGrid using the bitmap and palette
-# tile_grid = displayio.TileGrid(bitmap, pixel_shader=palette)
-# tile_grid.x = 0  # Position on screen
-# tile_grid.y = 0
-
-# g.append(tile_grid)
-
-display.root_group = g
-display.refresh()
 
 # battery
 max17048 = MAX17048(i2c)
