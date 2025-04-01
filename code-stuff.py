@@ -59,15 +59,17 @@ palette[2] = 0xFF0000  # Red
 #     for y in range(128):
 #         bitmap[x, y] = 1
 
+# TODO test all colors in ruler
 numbers = [
-    open(f"/numbers/{i}.bmp", "rb") for i in [ 0, 1, 2, 3, 4 ]
+    open(f"/numbers/{i}.bmp", "rb") for i in range(10)
 ]
 
 for i, f in enumerate(numbers):
     pic = displayio.OnDiskBitmap(f)
     tile_grid = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
-    tile_grid.x = i*20
-    tile_grid.y = 0
+    # convert i to x y position
+    tile_grid.x = int(i / 12)
+    tile_grid.y = int(i % 12)
     g.append(tile_grid)
 
 # Create the TileGrid using the bitmap and palette
