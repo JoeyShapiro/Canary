@@ -10,6 +10,18 @@ import adafruit_bme680
 import adafruit_ssd1681
 from adafruit_max1704x import MAX17048
 
+class Spritesheet:
+    def __init__(self, resource):
+        self.resource = resource
+    
+    def __enter__(self):
+        print(f"Acquiring {self.resource}")
+        return self.resource  # Return value is assigned to variable after 'as'
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print(f"Releasing {self.resource}")
+        return False
+
 displayio.release_displays()
 
 spi = board.SPI()  # Uses SCK and MOSI
@@ -45,26 +57,17 @@ bme680.sea_level_pressure = 1013.25
 # separate temperature sensor to calibrate this one.
 temperature_offset = -5
 
-# Create a bitmap with 2 colors
-bitmap = displayio.Bitmap(128, 128, 3)  # 16x16 pixels, 2 colors
-
-# Create a palette with the colors
-palette = displayio.Palette(3)
-palette[0] = 0x000000  # Black
-palette[1] = 0xFFFFFF  # White
-palette[2] = 0xFF0000  # Red
-
-# fill white
-# for x in range(128):
-#     for y in range(128):
-#         bitmap[x, y] = 1
 
 # TODO test all colors in ruler
-numbers = [
-    open(f"/numbers/{i}.bmp", "rb") for i in range(10)
+sprites = [
+    open(f"/sprites/{i}.bmp", "rb") for i in [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+                                              'bat-low', 'bat', 'dot', 
+                                              'hum-high', 'hum-low', 'hum', 
+                                              'pres-high', 'pres-low', 'pres', 
+                                              'temp-high', 'temp-low', 'temp' ]
 ]
 
-for i, f in enumerate(numbers):
+for i, f in enumerate(sprites):
     pic = displayio.OnDiskBitmap(f)
     tile_grid = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
     # convert i to x y position
@@ -72,10 +75,19 @@ for i, f in enumerate(numbers):
     tile_grid.y = int(i / 12) * 16
     g.append(tile_grid)
 
+temp = ((bme680.temperature + temperature_offset) * 9 / 5 + 32)
+for i, c in enumerate(f"{temp}"):
+    if c != ".":
+        pic = displayio.OnDiskBitmap(sprites[int(c)])
+        tile_grid = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
+        tile_grid.x = int(i % 12) * 16
+        tile_grid.y = 48
+        g.append(tile_grid)
+
 display.root_group = g
 display.refresh()
 
-for f in numbers:
+for f in sprites:
     f.close()
 
 # battery
@@ -94,4 +106,4 @@ while True:
     print(f"Battery voltage: {max17048.cell_voltage:.2f} V")
     print(f"Battery percentage: {max17048.cell_percent:.1f} %")
 
-    time.sleep(1)
+    time.sleep(180)
