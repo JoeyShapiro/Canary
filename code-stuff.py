@@ -15,8 +15,9 @@ import adafruit_sdcard
 
 class SpriteRenderer:
     def __init__(self, display):
-        # TODO storage.bmp memory.bmp unknown.bmp percent.bmp
+        # TODO storage.bmp memory.bmp unknown.bmp percent.bmp gas.bmp time.bmp
         # TODO using map, but would like list or something. can deal with it in c
+        # TODO maybe just numbers
         self.files = {
             img: f"/sprites/{img}.bmp" for img in [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
                                                     'bat-low', 'bat', 'dot', 
@@ -112,27 +113,30 @@ storage.mount(vfs, "/sd")
 #     tile_grid.y = int(i / 12) * 16
 #     g.append(tile_grid)
 
-temp = ((bme680.temperature + temperature_offset) * 9 / 5 + 32)
-with SpriteRenderer(display) as sprite_renderer:
-    sprite_renderer.write(temp, 0, 48)
-
 with open("/sd/test.txt", "w") as f:
-    f.write(f"starting\n{temp}\n")
+    f.write(f"starting\n")
 
 # battery
 max17048 = MAX17048(i2c)
 
 while True:
-    print("\nTemperature: %0.1f F" % ((bme680.temperature + temperature_offset) * 9 / 5 + 32))
-    print("Gas: %d ohm" % bme680.gas)
-    print("Humidity: %0.1f %%" % bme680.relative_humidity)
-    print("Pressure: %0.3f hPa" % bme680.pressure)
-    print("Altitude: %0.2f meters" % bme680.altitude)
+    temp = ((bme680.temperature + temperature_offset) * 9 / 5 + 32)
+    with SpriteRenderer(display) as sprite_renderer:
+        sprite_renderer.write('t', 0, 0)
+        sprite_renderer.write(temp, 32, 0)
+        sprite_renderer.write('h', 0, 16)
+        sprite_renderer.write(bme680.relative_humidity, 32, 16)
+        sprite_renderer.write('p', 0, 32)
+        sprite_renderer.write(bme680.pressure, 32, 32)
+        print("Gas: %d ohm" % bme680.gas)
+        print("Altitude: %0.2f meters" % bme680.altitude)
+        mem_usage = gc.mem_alloc() / (gc.mem_alloc()+gc.mem_free()) * 100
+        print("mem: {:.2f}%".format(mem_usage))
+        print(f"Battery voltage: {max17048.cell_voltage:.2f} V")
+        sprite_renderer.write('b', 0, 48)
+        sprite_renderer.write(max17048.cell_percent, 32, 48)
 
-    mem_usage = gc.mem_alloc() / (gc.mem_alloc()+gc.mem_free()) * 100
+    with open("/sd/test.txt", "w") as f:
+        f.write(f"{temp},{bme680.relative_humidity},{bme680.pressure},{bme680.gas},{bme680.altitude},{mem_usage},{max17048.cell_voltage},{max17048.cell_percent}\n")
 
-    print("mem: {:.2f}%".format(mem_usage))
-    print(f"Battery voltage: {max17048.cell_voltage:.2f} V")
-    print(f"Battery percentage: {max17048.cell_percent:.1f} %")
-
-    time.sleep(180)
+    time.sleep(display.time_to_refresh)
