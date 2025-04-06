@@ -2,10 +2,8 @@ import time
 import gc
 
 import board
-import analogio
 import displayio
 from fourwire import FourWire
-import adafruit_sdcard
 import digitalio
 import board
 import storage
@@ -13,18 +11,59 @@ import storage
 import adafruit_bme680
 import adafruit_ssd1681
 from adafruit_max1704x import MAX17048
+import adafruit_sdcard
 
-class Spritesheet:
-    def __init__(self, resource):
-        self.resource = resource
+class SpriteRenderer:
+    def __init__(self, display):
+        # TODO storage.bmp memory.bmp unknown.bmp percent.bmp
+        # TODO using map, but would like list or something. can deal with it in c
+        self.files = {
+            img: f"/sprites/{img}.bmp" for img in [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
+                                                    'bat-low', 'bat', 'dot', 
+                                                    'hum-high', 'hum-low', 'hum', 
+                                                    'pres-high', 'pres-low', 'pres', 
+                                                    'temp-high', 'temp-low', 'temp' ]
+        }
+        self.sprites = {}
+        self.charset = {
+            '0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
+            'a': 'bat-low', 'b': 'bat', '.': 'dot',
+            'd': 'hum-high', 'e': 'hum-low', 'h': 'hum',
+            'g': 'pres-high', 'l': 'pres-low', 'p': 'pres',
+            'j': 'temp-high', 'k': 'temp-low', 't': 'temp',
+        }
+        self.display = display
     
     def __enter__(self):
-        print(f"Acquiring {self.resource}")
-        return self.resource  # Return value is assigned to variable after 'as'
+        self.g = displayio.Group()
+        return self  # Return value is assigned to variable after 'as'
     
     def __exit__(self, exc_type, exc_val, exc_tb):
-        print(f"Releasing {self.resource}")
+        self.display.root_group = self.g
+        self.display.refresh()
+
+        # have to close after refresh otherwise it will not show up
+        for f in self.sprites:
+            f.close()
         return False
+    
+    def write(self, data, x, y):
+        for i, c in enumerate(f"{data}"):
+            pic = displayio.OnDiskBitmap(self._get(c))
+            tile_grid = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
+            tile_grid.x = x + int(i % 12) * 16
+            tile_grid.y = y
+            self.g.append(tile_grid)
+    
+    def _get(self, s):
+        if s not in self.sprites:
+            self._load(s)
+        return self.sprites[s]
+
+    def _load(self, s):
+        if s not in self.charset:
+            raise ValueError(f"Sprite {s} not found")
+        self.sprites[s] = open(self.files[self.charset[s]], "rb")
 
 displayio.release_displays()
 
@@ -46,8 +85,6 @@ display = adafruit_ssd1681.SSD1681(
     rotation=180,
 )
 
-g = displayio.Group()
-
 # Create sensor object, communicating over the board's default I2C bus
 i2c = board.I2C()  # uses board.SCL and board.SDA
 
@@ -67,37 +104,17 @@ sdcard = adafruit_sdcard.SDCard(spi, sd_cs)
 vfs = storage.VfsFat(sdcard)
 storage.mount(vfs, "/sd")
 
-# TODO test all colors in ruler
-# TODO storage.bmp memory.bmp unknown.bmp
-sprites = [
-    open(f"/sprites/{i}.bmp", "rb") for i in [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
-                                              'bat-low', 'bat', 'dot', 
-                                              'hum-high', 'hum-low', 'hum', 
-                                              'pres-high', 'pres-low', 'pres', 
-                                              'temp-high', 'temp-low', 'temp' ]
-]
-
-for i, f in enumerate(sprites):
-    pic = displayio.OnDiskBitmap(f)
-    tile_grid = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
-    # convert i to x y position
-    tile_grid.x = int(i % 12) * 16
-    tile_grid.y = int(i / 12) * 16
-    g.append(tile_grid)
+# for i, f in enumerate(sprites):
+#     pic = displayio.OnDiskBitmap(f)
+#     tile_grid = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
+#     # convert i to x y position
+#     tile_grid.x = int(i % 12) * 16
+#     tile_grid.y = int(i / 12) * 16
+#     g.append(tile_grid)
 
 temp = ((bme680.temperature + temperature_offset) * 9 / 5 + 32)
-for i, c in enumerate(f"{temp}"):
-    pic = displayio.OnDiskBitmap(sprites[12] if c == "." else sprites[int(c)])
-    tile_grid = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
-    tile_grid.x = int(i % 12) * 16
-    tile_grid.y = 48
-    g.append(tile_grid)
-
-display.root_group = g
-display.refresh()
-
-for f in sprites:
-    f.close()
+with SpriteRenderer(display) as sprite_renderer:
+    sprite_renderer.write(temp, 0, 48)
 
 with open("/sd/test.txt", "w") as f:
     f.write(f"starting\n{temp}\n")
