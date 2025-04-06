@@ -1,5 +1,6 @@
 from PIL import Image
 
+
 # Open an existing image
 image = Image.open("indexed_image.bmp")
 

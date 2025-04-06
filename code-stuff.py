@@ -59,6 +59,9 @@ temperature_offset = -5
 
 
 # TODO test all colors in ruler
+# TODO storage.bmp memory.bmp unknown.bmp
+# TODO connect SDCS for sd, and maybe MISO and SRCS
+# TODO and read code to see what i need to connect up. but should be simple
 sprites = [
     open(f"/sprites/{i}.bmp", "rb") for i in [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
                                               'bat-low', 'bat', 'dot', 
@@ -77,12 +80,11 @@ for i, f in enumerate(sprites):
 
 temp = ((bme680.temperature + temperature_offset) * 9 / 5 + 32)
 for i, c in enumerate(f"{temp}"):
-    if c != ".":
-        pic = displayio.OnDiskBitmap(sprites[int(c)])
-        tile_grid = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
-        tile_grid.x = int(i % 12) * 16
-        tile_grid.y = 48
-        g.append(tile_grid)
+    pic = displayio.OnDiskBitmap(sprites[12] if c == "." else sprites[int(c)])
+    tile_grid = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
+    tile_grid.x = int(i % 12) * 16
+    tile_grid.y = 48
+    g.append(tile_grid)
 
 display.root_group = g
 display.refresh()
