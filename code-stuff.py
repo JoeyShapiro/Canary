@@ -45,7 +45,7 @@ class SpriteRenderer:
 
         # have to close after refresh otherwise it will not show up
         for f in self.sprites:
-            f.close()
+            self.sprites[f].close()
         return False
     
     def write(self, data, x, y):
@@ -104,6 +104,7 @@ sd_cs = digitalio.DigitalInOut(board.D11)
 sdcard = adafruit_sdcard.SDCard(spi, sd_cs)
 vfs = storage.VfsFat(sdcard)
 storage.mount(vfs, "/sd")
+samples = []
 
 # for i, f in enumerate(sprites):
 #     pic = displayio.OnDiskBitmap(f)
@@ -113,30 +114,43 @@ storage.mount(vfs, "/sd")
 #     tile_grid.y = int(i / 12) * 16
 #     g.append(tile_grid)
 
-with open("/sd/test.txt", "w") as f:
-    f.write(f"starting\n")
-
 # battery
 max17048 = MAX17048(i2c)
 
+# create the file if it doesn't exist
+try:
+    with open("/sd/log.csv", "r") as f:
+        pass
+except OSError:
+    with open("/sd/log.csv", "w") as f:
+        f.write("time,temp,humidity,pressure,gas,altitude,mem_usage,battery_voltage,battery_percent\n")
+
 while True:
+    # TODO last log time, current time
     temp = ((bme680.temperature + temperature_offset) * 9 / 5 + 32)
-    with SpriteRenderer(display) as sprite_renderer:
-        sprite_renderer.write('t', 0, 0)
-        sprite_renderer.write(temp, 32, 0)
-        sprite_renderer.write('h', 0, 16)
-        sprite_renderer.write(bme680.relative_humidity, 32, 16)
-        sprite_renderer.write('p', 0, 32)
-        sprite_renderer.write(bme680.pressure, 32, 32)
-        print("Gas: %d ohm" % bme680.gas)
-        print("Altitude: %0.2f meters" % bme680.altitude)
-        mem_usage = gc.mem_alloc() / (gc.mem_alloc()+gc.mem_free()) * 100
-        print("mem: {:.2f}%".format(mem_usage))
-        print(f"Battery voltage: {max17048.cell_voltage:.2f} V")
-        sprite_renderer.write('b', 0, 48)
-        sprite_renderer.write(max17048.cell_percent, 32, 48)
+    if display.time_to_refresh == 0:
+        with SpriteRenderer(display) as sprite_renderer:
+            sprite_renderer.write('t', 0, 0)
+            sprite_renderer.write(temp, 32, 0)
+            sprite_renderer.write('h', 0, 16)
+            sprite_renderer.write(bme680.relative_humidity, 32, 16)
+            sprite_renderer.write('p', 0, 32)
+            sprite_renderer.write(bme680.pressure, 32, 32)
+            print("Gas: %d ohm" % bme680.gas)
+            print("Altitude: %0.2f meters" % bme680.altitude)
+            mem_usage = gc.mem_alloc() / (gc.mem_alloc()+gc.mem_free()) * 100
+            print("mem: {:.2f}%".format(mem_usage))
+            print(f"Battery voltage: {max17048.cell_voltage:.2f} V")
+            sprite_renderer.write('b', 0, 48)
+            sprite_renderer.write(max17048.cell_percent, 32, 48)
+        
+        # might as well also write to the sd card
+        # this will keep it in time with the display time
+        with open("/sd/log.csv", "a") as f:
+            for sample in samples:
+                f.write(','.join([str(x) for x in sample]) + '\n')
+        samples = []
 
-    with open("/sd/test.txt", "w") as f:
-        f.write(f"{temp},{bme680.relative_humidity},{bme680.pressure},{bme680.gas},{bme680.altitude},{mem_usage},{max17048.cell_voltage},{max17048.cell_percent}\n")
+    samples.append([time.time(),temp,bme680.relative_humidity,bme680.pressure,bme680.gas,bme680.altitude,mem_usage,max17048.cell_voltage,max17048.cell_percent])
 
-    time.sleep(display.time_to_refresh)
+    time.sleep(1)
