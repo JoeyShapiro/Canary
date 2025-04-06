@@ -1,5 +1,6 @@
 import time
 import gc
+import os
 
 import board
 import displayio
@@ -15,23 +16,26 @@ import adafruit_sdcard
 
 class SpriteRenderer:
     def __init__(self, display):
-        # TODO storage.bmp memory.bmp unknown.bmp percent.bmp gas.bmp time.bmp
         # TODO using map, but would like list or something. can deal with it in c
         # TODO maybe just numbers
+        # TODO dont like usage.bmp
         self.files = {
             img: f"/sprites/{img}.bmp" for img in [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
                                                     'bat-low', 'bat', 'dot', 
                                                     'hum-high', 'hum-low', 'hum', 
                                                     'pres-high', 'pres-low', 'pres', 
-                                                    'temp-high', 'temp-low', 'temp' ]
+                                                    'temp-high', 'temp-low', 'temp',
+                                                    'err', 'gas', 'per', 'storage', 'time', 'usage' ]
         }
         self.sprites = {}
         self.charset = {
             '0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
             'a': 'bat-low', 'b': 'bat', '.': 'dot',
-            'd': 'hum-high', 'e': 'hum-low', 'h': 'hum',
-            'g': 'pres-high', 'l': 'pres-low', 'p': 'pres',
+            'd': 'hum-high', 'l': 'hum-low', 'h': 'hum',
+            'n': 'pres-high', 'l': 'pres-low', 'p': 'pres',
             'j': 'temp-high', 'k': 'temp-low', 't': 'temp',
+            'e': 'err', 'g': 'gas', '%': 'per', 's': 'storage', 'u': 'usage',
+            'x': 'time',
         }
         self.display = display
     
@@ -106,14 +110,6 @@ vfs = storage.VfsFat(sdcard)
 storage.mount(vfs, "/sd")
 samples = []
 
-# for i, f in enumerate(sprites):
-#     pic = displayio.OnDiskBitmap(f)
-#     tile_grid = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
-#     # convert i to x y position
-#     tile_grid.x = int(i % 12) * 16
-#     tile_grid.y = int(i / 12) * 16
-#     g.append(tile_grid)
-
 # battery
 max17048 = MAX17048(i2c)
 
@@ -136,13 +132,27 @@ while True:
             sprite_renderer.write(bme680.relative_humidity, 32, 16)
             sprite_renderer.write('p', 0, 32)
             sprite_renderer.write(bme680.pressure, 32, 32)
-            print("Gas: %d ohm" % bme680.gas)
+            sprite_renderer.write('g', 0, 48)
+            sprite_renderer.write(bme680.gas, 32, 48)
             print("Altitude: %0.2f meters" % bme680.altitude)
             mem_usage = gc.mem_alloc() / (gc.mem_alloc()+gc.mem_free()) * 100
-            print("mem: {:.2f}%".format(mem_usage))
+            sprite_renderer.write('u', 0, 64)
+            sprite_renderer.write(f"{mem_usage}%", 32, 64)
             print(f"Battery voltage: {max17048.cell_voltage:.2f} V")
-            sprite_renderer.write('b', 0, 48)
-            sprite_renderer.write(max17048.cell_percent, 32, 48)
+            sprite_renderer.write('b', 0, 80)
+            sprite_renderer.write(f"{max17048.cell_percent}%", 32, 80)
+            now = time.time()
+            sprite_renderer.write('x', 0, 96)
+            sprite_renderer.write(f"{int(now)}", 32, 96)
+
+            stats = os.statvfs("/sd")
+
+            # Calculate total and free space in bytes
+            total_blocks = stats[2]
+            free_blocks = stats[3]
+
+            sprite_renderer.write('s', 0, 112)
+            sprite_renderer.write(f"{1 - free_blocks / total_blocks:.2f}%", 32, 112)
         
         # might as well also write to the sd card
         # this will keep it in time with the display time
