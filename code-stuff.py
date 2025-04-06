@@ -60,8 +60,6 @@ temperature_offset = -5
 
 # TODO test all colors in ruler
 # TODO storage.bmp memory.bmp unknown.bmp
-# TODO connect SDCS for sd, and maybe MISO and SRCS
-# TODO and read code to see what i need to connect up. but should be simple
 sprites = [
     open(f"/sprites/{i}.bmp", "rb") for i in [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
                                               'bat-low', 'bat', 'dot', 
