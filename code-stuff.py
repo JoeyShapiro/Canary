@@ -5,6 +5,10 @@ import board
 import analogio
 import displayio
 from fourwire import FourWire
+import adafruit_sdcard
+import digitalio
+import board
+import storage
 
 import adafruit_bme680
 import adafruit_ssd1681
@@ -57,6 +61,11 @@ bme680.sea_level_pressure = 1013.25
 # separate temperature sensor to calibrate this one.
 temperature_offset = -5
 
+# sd card
+sd_cs = digitalio.DigitalInOut(board.D11)
+sdcard = adafruit_sdcard.SDCard(spi, sd_cs)
+vfs = storage.VfsFat(sdcard)
+storage.mount(vfs, "/sd")
 
 # TODO test all colors in ruler
 # TODO storage.bmp memory.bmp unknown.bmp
@@ -89,6 +98,9 @@ display.refresh()
 
 for f in sprites:
     f.close()
+
+with open("/sd/test.txt", "w") as f:
+    f.write(f"starting\n{temp}\n")
 
 # battery
 max17048 = MAX17048(i2c)
