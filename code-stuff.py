@@ -21,7 +21,7 @@ class SpriteRenderer:
         # TODO dont like usage.bmp
         self.files = {
             img: f"/sprites/{img}.bmp" for img in [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
-                                                    'bat-low', 'bat', 'dot', 
+                                                    'bat-low', 'bat', 'dot', 'minus',
                                                     'hum-high', 'hum-low', 'hum', 
                                                     'pres-high', 'pres-low', 'pres', 
                                                     'temp-high', 'temp-low', 'temp',
@@ -30,7 +30,7 @@ class SpriteRenderer:
         self.sprites = {}
         self.charset = {
             '0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
-            'a': 'bat-low', 'b': 'bat', '.': 'dot',
+            'a': 'bat-low', 'b': 'bat', '.': 'dot', '-': 'minus',
             'd': 'hum-high', 'l': 'hum-low', 'h': 'hum',
             'n': 'pres-high', 'l': 'pres-low', 'p': 'pres',
             'j': 'temp-high', 'k': 'temp-low', 't': 'temp',
@@ -54,6 +54,8 @@ class SpriteRenderer:
     
     def write(self, data, x, y):
         for i, c in enumerate(f"{data}"):
+            if c == ' ':
+                continue
             pic = displayio.OnDiskBitmap(self._get(c))
             tile_grid = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
             tile_grid.x = x + int(i % 12) * 16
@@ -122,7 +124,6 @@ except OSError:
         f.write("time,temp,humidity,pressure,gas,altitude,mem_usage,battery_voltage,battery_percent\n")
 
 while True:
-    # TODO last log time, current time
     temp = ((bme680.temperature + temperature_offset) * 9 / 5 + 32)
     if display.time_to_refresh == 0:
         with SpriteRenderer(display) as sprite_renderer:
@@ -138,12 +139,11 @@ while True:
             mem_usage = gc.mem_alloc() / (gc.mem_alloc()+gc.mem_free()) * 100
             sprite_renderer.write('u', 0, 64)
             sprite_renderer.write(f"{mem_usage}%", 32, 64)
-            print(f"Battery voltage: {max17048.cell_voltage:.2f} V")
             sprite_renderer.write('b', 0, 80)
             sprite_renderer.write(f"{max17048.cell_percent}%", 32, 80)
             now = time.time()
             sprite_renderer.write('x', 0, 96)
-            sprite_renderer.write(f"{int(now)}", 32, 96)
+            sprite_renderer.write(time.strftime('%m-%d-%Y %I:%M'), 32, 96)
 
             stats = os.statvfs("/sd")
 
