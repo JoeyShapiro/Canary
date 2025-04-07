@@ -149,9 +149,9 @@ while True:
             sprite_renderer.write(bme680.altitude, 32, 64)
             sprite_renderer.write(f"u {mem_usage}%", 0, 80)
             sprite_renderer.write(f"b {max17048.cell_percent}%", 0, 96)
-            now = time.time()
-            sprite_renderer.write('x', 0, 112)
-            sprite_renderer.write(time.strftime('%m-%d-%Y %I:%M'), 32, 112)
+            now = time.localtime()
+            sprite_renderer.write(f"x {now.tm_mon}-{now.tm_mday}-{now.tm_year}", 0, 112)
+            sprite_renderer.write(f"    {now.tm_hour}:{now.tm_min:02}", 0, 128)
 
             stats = os.statvfs("/sd")
 
@@ -159,8 +159,8 @@ while True:
             total_blocks = stats[2]
             free_blocks = stats[3]
 
-            sprite_renderer.write('s', 0, 128)
-            sprite_renderer.write(f"{1 - free_blocks / total_blocks:.2f}%", 32, 128)
+            sprite_renderer.write('s', 0, 144)
+            sprite_renderer.write(f"{1 - free_blocks / total_blocks:.2f}%", 32, 144)
         
         # might as well also write to the sd card
         # this will keep it in time with the display time
