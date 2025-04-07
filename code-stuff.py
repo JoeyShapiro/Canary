@@ -21,7 +21,7 @@ class SpriteRenderer:
         # TODO dont like usage.bmp
         self.files = {
             img: f"/sprites/{img}.bmp" for img in [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
-                                                    'bat-low', 'bat', 'dot', 'minus',
+                                                    'alt', 'bat-low', 'bat', 'dot', 'minus',
                                                     'hum-high', 'hum-low', 'hum', 
                                                     'pres-high', 'pres-low', 'pres', 
                                                     'temp-high', 'temp-low', 'temp',
@@ -30,7 +30,7 @@ class SpriteRenderer:
         self.sprites = {}
         self.charset = {
             '0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
-            'a': 'bat-low', 'b': 'bat', '.': 'dot', '-': 'minus',
+            'a': 'alt', 'c': 'bat-low', 'b': 'bat', '.': 'dot', '-': 'minus',
             'd': 'hum-high', 'l': 'hum-low', 'h': 'hum',
             'n': 'pres-high', 'l': 'pres-low', 'p': 'pres',
             'j': 'temp-high', 'k': 'temp-low', 't': 'temp',
@@ -64,7 +64,10 @@ class SpriteRenderer:
     
     def _get(self, s):
         if s not in self.sprites:
-            self._load(s)
+            try:
+                self._load(s)
+            except ValueError:
+                return self._get('e')
         return self.sprites[s]
 
     def _load(self, s):
@@ -112,6 +115,11 @@ vfs = storage.VfsFat(sdcard)
 storage.mount(vfs, "/sd")
 samples = []
 
+# sd_enable = digitalio.DigitalInOut(board.D10)
+# sd_enable.direction = digitalio.Direction.OUTPUT
+# # To enable SD card
+# sd_enable.value = True
+
 # battery
 max17048 = MAX17048(i2c)
 
@@ -125,6 +133,8 @@ except OSError:
 
 while True:
     temp = ((bme680.temperature + temperature_offset) * 9 / 5 + 32)
+    mem_usage = gc.mem_alloc() / (gc.mem_alloc()+gc.mem_free()) * 100
+
     if display.time_to_refresh == 0:
         with SpriteRenderer(display) as sprite_renderer:
             sprite_renderer.write('t', 0, 0)
@@ -135,15 +145,13 @@ while True:
             sprite_renderer.write(bme680.pressure, 32, 32)
             sprite_renderer.write('g', 0, 48)
             sprite_renderer.write(bme680.gas, 32, 48)
-            print("Altitude: %0.2f meters" % bme680.altitude)
-            mem_usage = gc.mem_alloc() / (gc.mem_alloc()+gc.mem_free()) * 100
-            sprite_renderer.write('u', 0, 64)
-            sprite_renderer.write(f"{mem_usage}%", 32, 64)
-            sprite_renderer.write('b', 0, 80)
-            sprite_renderer.write(f"{max17048.cell_percent}%", 32, 80)
+            sprite_renderer.write('a', 0, 64)
+            sprite_renderer.write(bme680.altitude, 32, 64)
+            sprite_renderer.write(f"u {mem_usage}%", 0, 80)
+            sprite_renderer.write(f"b {max17048.cell_percent}%", 0, 96)
             now = time.time()
-            sprite_renderer.write('x', 0, 96)
-            sprite_renderer.write(time.strftime('%m-%d-%Y %I:%M'), 32, 96)
+            sprite_renderer.write('x', 0, 112)
+            sprite_renderer.write(time.strftime('%m-%d-%Y %I:%M'), 32, 112)
 
             stats = os.statvfs("/sd")
 
@@ -151,8 +159,8 @@ while True:
             total_blocks = stats[2]
             free_blocks = stats[3]
 
-            sprite_renderer.write('s', 0, 112)
-            sprite_renderer.write(f"{1 - free_blocks / total_blocks:.2f}%", 32, 112)
+            sprite_renderer.write('s', 0, 128)
+            sprite_renderer.write(f"{1 - free_blocks / total_blocks:.2f}%", 32, 128)
         
         # might as well also write to the sd card
         # this will keep it in time with the display time
