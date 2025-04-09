@@ -75,6 +75,15 @@ class SpriteRenderer:
         if s not in self.charset:
             raise ValueError(f"Sprite {s} not found")
         self.sprites[s] = open(self.files[self.charset[s]], "rb")
+    
+    def square(self, x, y, w, h, color=0xFFFFFF):
+        # Create a bitmap with the desired width and height
+        bitmap = displayio.Bitmap(w, h, 1)
+        palette = displayio.Palette(1)
+        palette[0] = color
+
+        tile_grid = displayio.TileGrid(bitmap, pixel_shader=palette, x=x, y=y)
+        self.g.append(tile_grid)
 
 displayio.release_displays()
 
@@ -138,6 +147,8 @@ while True:
 
     if display.time_to_refresh == 0:
         with SpriteRenderer(display) as sprite_renderer:
+            sprite_renderer.square(0, 0, 200, 200, 0xFFFFFF)
+
             pad = 2 # good enough, not to worried since i am switching to c
             row = 0
             height = 16
