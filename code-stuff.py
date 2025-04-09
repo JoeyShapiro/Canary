@@ -19,6 +19,7 @@ class SpriteRenderer:
         # TODO using map, but would like list or something. can deal with it in c
         # TODO maybe just numbers
         # TODO dont like usage.bmp
+        # TODO make lower height; add :.bmp
         self.files = {
             img: f"/sprites/{img}.bmp" for img in [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
                                                     'alt', 'bat-low', 'bat', 'dot', 'minus',
@@ -137,21 +138,33 @@ while True:
 
     if display.time_to_refresh == 0:
         with SpriteRenderer(display) as sprite_renderer:
-            sprite_renderer.write('t', 0, 0)
-            sprite_renderer.write(temp, 32, 0)
-            sprite_renderer.write('h', 0, 16)
-            sprite_renderer.write(bme680.relative_humidity, 32, 16)
-            sprite_renderer.write('p', 0, 32)
-            sprite_renderer.write(bme680.pressure, 32, 32)
-            sprite_renderer.write('g', 0, 48)
-            sprite_renderer.write(bme680.gas, 32, 48)
-            sprite_renderer.write('a', 0, 64)
-            sprite_renderer.write(bme680.altitude, 32, 64)
-            sprite_renderer.write(f"u {mem_usage}%", 0, 80)
-            sprite_renderer.write(f"b {max17048.cell_percent}%", 0, 96)
+            pad = 2 # good enough, not to worried since i am switching to c
+            row = 0
+            height = 16
+            sprite_renderer.write('t', 0, height*row+(pad*(row+1)))
+            sprite_renderer.write(temp, 32, height*row+(pad*(row+1)))
+            row += 1
+            sprite_renderer.write('h', 0, height*row+(pad*(row+1)))
+            sprite_renderer.write(bme680.relative_humidity, 32, height*row+(pad*(row+1)))
+            row += 1
+            sprite_renderer.write('p', 0, height*row+(pad*(row+1)))
+            sprite_renderer.write(bme680.pressure, 32, height*row+(pad*(row+1)))
+            row += 1
+            sprite_renderer.write('g', 0, height*row+(pad*(row+1)))
+            sprite_renderer.write(bme680.gas, 32, height*row+(pad*(row+1)))
+            row += 1
+            sprite_renderer.write('a', 0, height*row+(pad*(row+1)))
+            sprite_renderer.write(bme680.altitude, 32, height*row+(pad*(row+1)))
+            row += 1
+            sprite_renderer.write(f"u {mem_usage}%", 0, height*row+(pad*(row+1)))
+            row += 1
+            sprite_renderer.write(f"b {max17048.cell_percent}%", 0, height*row+(pad*(row+1)))
+            row += 1
             now = time.localtime()
-            sprite_renderer.write(f"x {now.tm_mon}-{now.tm_mday}-{now.tm_year}", 0, 112)
-            sprite_renderer.write(f"    {now.tm_hour}:{now.tm_min:02}", 0, 128)
+            sprite_renderer.write(f"x {now.tm_mon}-{now.tm_mday}-{now.tm_year}", 0, height*row+(pad*(row+1)))
+            row += 1
+            sprite_renderer.write(f"    {now.tm_hour}:{now.tm_min:02}", 0, height*row+(pad*(row+1)))
+            row += 1
 
             stats = os.statvfs("/sd")
 
@@ -159,8 +172,8 @@ while True:
             total_blocks = stats[2]
             free_blocks = stats[3]
 
-            sprite_renderer.write('s', 0, 144)
-            sprite_renderer.write(f"{1 - free_blocks / total_blocks:.2f}%", 32, 144)
+            sprite_renderer.write('s', 0, height*row+(pad*(row+1)))
+            sprite_renderer.write(f"{1 - free_blocks / total_blocks:.2f}%", 32, height*row+(pad*(row+1)))
         
         # might as well also write to the sd card
         # this will keep it in time with the display time
