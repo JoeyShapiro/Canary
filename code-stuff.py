@@ -26,7 +26,7 @@ class SpriteRenderer:
                                                     'hum-high', 'hum-low', 'hum', 
                                                     'pres-high', 'pres-low', 'pres', 
                                                     'temp-high', 'temp-low', 'temp',
-                                                    'err', 'gas', 'per', 'storage', 'time', 'usage' ]
+                                                    'err', 'gas', 'per', 'storage', 'time', 'usage', 'colon' ]
         }
         self.sprites = {}
         self.charset = {
@@ -36,7 +36,7 @@ class SpriteRenderer:
             'n': 'pres-high', 'l': 'pres-low', 'p': 'pres',
             'j': 'temp-high', 'k': 'temp-low', 't': 'temp',
             'e': 'err', 'g': 'gas', '%': 'per', 's': 'storage', 'u': 'usage',
-            'x': 'time',
+            'x': 'time', ':': 'colon',
         }
         self.display = display
     
