@@ -14,12 +14,18 @@ import adafruit_ssd1681
 from adafruit_max1704x import MAX17048
 import adafruit_sdcard
 
+settings = {
+    'poll': 1, # seconds
+    'refresh': 0, # seconds (0 = asap)
+    'temp_offset': -5, # degrees
+    'sea_level_pressure': 1013.25, # hPa
+    'appearance': 1, # 0 = black, 1 = white
+}
+
 class SpriteRenderer:
     def __init__(self, display):
         # TODO using map, but would like list or something. can deal with it in c
-        # TODO maybe just numbers
         # TODO dont like usage.bmp
-        # TODO make lower height; add :.bmp
         self.files = {
             img: f"/sprites/{img}.bmp" for img in [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 
                                                     'alt', 'bat-low', 'bat', 'dot', 'minus',
@@ -116,7 +122,7 @@ bme680.sea_level_pressure = 1013.25
 # You will usually have to add an offset to account for the temperature of
 # the sensor. This is usually around 5 degrees but varies by use. Use a
 # separate temperature sensor to calibrate this one.
-temperature_offset = -5
+temperature_offset = 0#-5
 
 # sd card
 sd_cs = digitalio.DigitalInOut(board.D11)
