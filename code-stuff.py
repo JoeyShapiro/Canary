@@ -13,6 +13,7 @@ import adafruit_bme680
 import adafruit_ssd1681
 from adafruit_max1704x import MAX17048
 import adafruit_sdcard
+from adafruit_pcf8523.pcf8523 import PCF8523
 
 settings = {
     'poll': 1, # seconds
@@ -138,6 +139,8 @@ samples = []
 
 # battery
 max17048 = MAX17048(i2c)
+# Real Time Clock
+rtc = PCF8523(i2c)
 
 # create the file if it doesn't exist
 try:
@@ -177,7 +180,7 @@ while True:
             row += 1
             sprite_renderer.write(f"b {max17048.cell_percent}%", 0, height*row+(pad*(row+1)))
             row += 1
-            now = time.localtime()
+            now = rtc.datetime
             sprite_renderer.write(f"x {now.tm_mon}-{now.tm_mday}-{now.tm_year}", 0, height*row+(pad*(row+1)))
             row += 1
             sprite_renderer.write(f"    {now.tm_hour}:{now.tm_min:02}", 0, height*row+(pad*(row+1)))
