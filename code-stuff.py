@@ -21,6 +21,7 @@ settings = {
     'temp_offset': -5, # degrees
     'sea_level_pressure': 1013.25, # hPa
     'appearance': 1, # 0 = black, 1 = white
+    'military_time': False, # 0 = 12 hour, 1 = 24 hour
 }
 
 class SpriteRenderer:
@@ -142,6 +143,11 @@ max17048 = MAX17048(i2c)
 # Real Time Clock
 rtc = PCF8523(i2c)
 
+if False:  # change to True if you want to set the time!
+    #                     year, mon, mday, hour, min, sec, wday, yday, isdst
+    t = time.struct_time((2024, 4,   14,   12+9, 10,  11,  0,    -1,   -1))
+    rtc.datetime = t
+
 # create the file if it doesn't exist
 try:
     with open("/sd/log.csv", "r") as f:
@@ -183,7 +189,8 @@ while True:
             now = rtc.datetime
             sprite_renderer.write(f"x {now.tm_mon}-{now.tm_mday}-{now.tm_year}", 0, height*row+(pad*(row+1)))
             row += 1
-            sprite_renderer.write(f"    {now.tm_hour}:{now.tm_min:02}", 0, height*row+(pad*(row+1)))
+            hour = now.tm_hour if settings['military_time'] else now.tm_hour % 12
+            sprite_renderer.write(f"    {hour}:{now.tm_min:02}", 0, height*row+(pad*(row+1)))
             row += 1
 
             stats = os.statvfs("/sd")
@@ -202,6 +209,6 @@ while True:
                 f.write(','.join([str(x) for x in sample]) + '\n')
         samples = []
 
-    samples.append([time.time(),temp,bme680.relative_humidity,bme680.pressure,bme680.gas,bme680.altitude,mem_usage,max17048.cell_voltage,max17048.cell_percent])
+    samples.append([time.mktime(now),temp,bme680.relative_humidity,bme680.pressure,bme680.gas,bme680.altitude,mem_usage,max17048.cell_voltage,max17048.cell_percent])
 
     time.sleep(1)
