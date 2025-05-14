@@ -69,7 +69,7 @@ Adafruit_Image_EPD   img;        // An image loaded into RAM
 int32_t              width  = 0, // BMP image dimensions
                      height = 0;
 
-void setup(void) {
+void eink_setup(void) {
 
   ImageReturnCode stat; // Status from image-reading functions
 
@@ -141,7 +141,7 @@ void setup(void) {
   reader.printStatus(stat); // How'd we do?
 }
 
-void loop() {
+void eink_loop() {
   for(int r=0; r<4; r++) {     // For each of 4 rotations...
     display.setRotation(r);    // Set rotation
     display.fillScreen(0);     // and clear screen

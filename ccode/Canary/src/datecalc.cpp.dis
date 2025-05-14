@@ -2,7 +2,7 @@
 
 #include "RTClib.h"
 
-void showDate(const char* txt, const DateTime& dt) {
+void rtc_showDate(const char* txt, const DateTime& dt) {
     Serial.print(txt);
     Serial.print(' ');
     Serial.print(dt.year(), DEC);
@@ -26,7 +26,7 @@ void showDate(const char* txt, const DateTime& dt) {
     Serial.println();
 }
 
-void showTimeSpan(const char* txt, const TimeSpan& ts) {
+void rtc_showTimeSpan(const char* txt, const TimeSpan& ts) {
     Serial.print(txt);
     Serial.print(" ");
     Serial.print(ts.days(), DEC);
@@ -42,7 +42,7 @@ void showTimeSpan(const char* txt, const TimeSpan& ts) {
     Serial.println();
 }
 
-void setup () {
+void rtc_setup () {
     Serial.begin(57600);
 
 #ifndef ESP8266
@@ -101,5 +101,5 @@ void setup () {
     showTimeSpan("dt10-dt6", ts2);
 }
 
-void loop () {
+void rtc_loop () {
 }

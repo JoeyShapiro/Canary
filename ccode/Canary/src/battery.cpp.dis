@@ -2,7 +2,7 @@
 
 Adafruit_MAX17048 maxlipo;
 
-void setup() {
+void bat_setup() {
   Serial.begin(115200);
   while (!Serial) delay(10);    // wait until serial monitor opens
 
@@ -17,7 +17,7 @@ void setup() {
   Serial.println(maxlipo.getChipID(), HEX);
 }
 
-void loop() {
+void bat_loop() {
   float cellVoltage = maxlipo.cellVoltage();
   if (isnan(cellVoltage)) {
     Serial.println("Failed to read cell voltage, check battery is connected!");
