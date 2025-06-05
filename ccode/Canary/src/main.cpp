@@ -29,10 +29,21 @@ RTC_PCF8523 rtc;
 // seems
 // althought, might be importing too much, but c can figure it out
 
+struct Sample
+{
+	uint32_t timestamp; // Unix timestamp in seconds
+	float temperature; // Temperature in degrees Celsius
+	float pressure; // Pressure in hPa
+	float humidity; // Humidity in %
+	float gas_resistance; // Gas resistance in Ohms
+	float altitude; // Altitude in meters
+};
+
+
 void setup(void)
 {
 	Serial.begin(9600);
-	while(!Serial);           // Wait for Serial Monitor before continuing
+	// while(!Serial);           // Wait for Serial Monitor before continuing
 	
 	if (!rtc.begin()) {
 		Serial.println(F("RTC initialization failed!"));
@@ -79,7 +90,6 @@ void setup(void)
 		while (1);
 	}
 	
-	Serial.println(F("OK!"));
 	SD.ls(LS_SIZE);
 
 	Serial.println(rtc.initialized() ? F("RTC is running!") : F("RTC is NOT running!"));
