@@ -35,7 +35,7 @@ struct Sample
 	float temperature; // Temperature in degrees Celsius
 	float pressure; // Pressure in hPa
 	float humidity; // Humidity in %
-	float gas_resistance; // Gas resistance in Ohms
+	uint32_t gas_resistance; // Gas resistance in Ohms
 	float altitude; // Altitude in meters
 };
 
@@ -79,8 +79,29 @@ void setup(void)
 
 void loop()
 {
+	DateTime now = rtc.now();
 	bme.performReading();
-  
+	// i dont need all this precision, but it really doesnt matter
+	Sample sample = {
+		.timestamp      = now.unixtime(), // Timestamp in seconds
+		.temperature    = bme.temperature, // Temperature in degrees Celsius
+		.pressure       = bme.pressure / (float)100.0, // Pressure in hPa
+		.humidity       = bme.humidity, // Humidity in %
+		.gas_resistance = bme.gas_resistance, // Gas resistance in Ohms
+		.altitude       = bme.readAltitude(SEALEVELPRESSURE_HPA) // Altitude in meters
+	};
+
+	File32 f = SD.open("log.bin", O_RDWR | O_CREAT | O_APPEND);
+	
+	if (f) {
+		size_t n = f.write((uint8_t*)&sample, sizeof(sample));
+		f.close();
+		Serial.print(F("Written bytes = "));
+		Serial.println(n);
+	} else {
+		Serial.println(F("Failed to open log.bin"));
+	}
+
 	Serial.print(F("Temperature = "));
 	Serial.print(bme.temperature);
 	Serial.println(F(" *C"));
@@ -101,8 +122,6 @@ void loop()
 	Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
 	Serial.println(F(" m"));
 
-	DateTime now = rtc.now();
-
     Serial.print(now.year(), DEC);
     Serial.print('-');
     Serial.print(now.month(), DEC);
@@ -113,8 +132,6 @@ void loop()
     Serial.print(':');
     Serial.print(now.minute(), DEC);
     Serial.println();
-
-	Serial.println(now.unixtime());
 
 	delay(1000);
 }
