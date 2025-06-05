@@ -43,7 +43,8 @@ struct Sample
 void setup(void)
 {
 	Serial.begin(9600);
-	// while(!Serial);           // Wait for Serial Monitor before continuing
+	// need this
+	while(!Serial);
 	
 	if (!rtc.begin()) {
 		Serial.println(F("RTC initialization failed!"));
@@ -60,7 +61,24 @@ void setup(void)
 	bme.setPressureOversampling(BME680_OS_4X);
 	bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
 	bme.setGasHeater(320, 150); // 320*C for 150 ms
+	
+	// SD card is pretty straightforward, a single call...
+	if (!SD.begin(SD_CS, SD_SCK_MHZ(10)))
+	{ // Breakouts require 10 MHz limit due to longer wires
+		Serial.println(F("SD begin() failed"));
+		while (1);
+	}
+	
+	SD.ls(LS_SIZE);
 
+	Serial.println(rtc.initialized() ? F("RTC is running!") : F("RTC is NOT running!"));
+	Serial.println(rtc.lostPower() ? F("RTC lost power!") : F("RTC is not lost power!"));
+
+	rtc.start();
+}
+
+void loop()
+{
 	bme.performReading();
   
 	Serial.print(F("Temperature = "));
@@ -82,20 +100,7 @@ void setup(void)
 	Serial.print(F("Approx. Altitude = "));
 	Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
 	Serial.println(F(" m"));
-	
-	// SD card is pretty straightforward, a single call...
-	if (!SD.begin(SD_CS, SD_SCK_MHZ(10)))
-	{ // Breakouts require 10 MHz limit due to longer wires
-		Serial.println(F("SD begin() failed"));
-		while (1);
-	}
-	
-	SD.ls(LS_SIZE);
 
-	Serial.println(rtc.initialized() ? F("RTC is running!") : F("RTC is NOT running!"));
-	Serial.println(rtc.lostPower() ? F("RTC lost power!") : F("RTC is not lost power!"));
-
-	rtc.start();
 	DateTime now = rtc.now();
 
     Serial.print(now.year(), DEC);
@@ -108,8 +113,8 @@ void setup(void)
     Serial.print(':');
     Serial.print(now.minute(), DEC);
     Serial.println();
-}
 
-void loop()
-{
+	Serial.println(now.unixtime());
+
+	delay(1000);
 }
