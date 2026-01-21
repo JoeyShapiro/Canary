@@ -28,11 +28,26 @@ bmesh.update_edit_mesh(outer.data)
 bpy.ops.transform.resize(
     value=(1, 0, 1),
     orient_type='GLOBAL',
-    constraint_axis=(True, False, False)
+    constraint_axis=(False, True, False) # not sure what this does
 )
 
 # Smooth the sharp transition
 bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=5)
+
+
+
+
+bpy.ops.mesh.select_all(action='DESELECT')
+
+mesh = bmesh.from_edit_mesh(outer.data)
+
+# Select one side
+for v in mesh.verts:
+    if v.co.z > 0.55:
+        v.co.z = 0.55
+
+bmesh.update_edit_mesh(outer.data)
+
 
 bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -59,11 +74,27 @@ bmesh.update_edit_mesh(inner.data)
 bpy.ops.transform.resize(
     value=(1, 0, 1),
     orient_type='GLOBAL',
-    constraint_axis=(True, False, False)
+    constraint_axis=(False, False, False)
 )
 
 # Smooth the sharp transition
 bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=5)
+
+
+
+
+bpy.ops.mesh.select_all(action='DESELECT')
+mesh = bmesh.from_edit_mesh(inner.data)
+
+# Select one side
+for v in mesh.verts:
+    if v.co.z > 0.50:
+        v.co.z = 0.50
+
+bmesh.update_edit_mesh(inner.data)
+
+
+
 
 bpy.ops.object.mode_set(mode='OBJECT')
 
