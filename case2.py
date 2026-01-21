@@ -1,0 +1,95 @@
+import bpy
+import bmesh
+
+# Clear scene
+bpy.ops.object.select_all(action='SELECT')
+bpy.ops.object.delete(use_global=False)
+
+# Create outer egg shape (UV sphere scaled vertically)
+bpy.ops.mesh.primitive_uv_sphere_add(radius=1, segments=64, ring_count=32)
+outer = bpy.context.active_object
+outer.name = "Outer_Shell"
+outer.scale = (1, 1.3, 0.7)  # Make it egg-shaped (taller)
+bpy.ops.object.transform_apply(scale=True)
+
+bpy.ops.object.mode_set(mode='EDIT')
+bpy.ops.mesh.select_all(action='DESELECT')
+
+mesh = bmesh.from_edit_mesh(outer.data)
+
+# Select one side
+for v in mesh.verts:
+    if v.co.y < -0.9:
+        v.select = True
+
+bmesh.update_edit_mesh(outer.data)
+
+# Scale to 0 along X axis (flattens to a plane)
+bpy.ops.transform.resize(
+    value=(1, 0, 1),
+    orient_type='GLOBAL',
+    constraint_axis=(True, False, False)
+)
+
+# Smooth the sharp transition
+bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=5)
+
+bpy.ops.object.mode_set(mode='OBJECT')
+
+# Create inner sphere (slightly smaller for wall thickness)
+bpy.ops.mesh.primitive_uv_sphere_add(radius=0.95, segments=64, ring_count=32)
+inner = bpy.context.active_object
+inner.name = "Inner_Shell"
+inner.scale = (1, 1.3, 0.7)  # Match the egg shape
+bpy.ops.object.transform_apply(scale=True)
+
+bpy.ops.object.mode_set(mode='EDIT')
+bpy.ops.mesh.select_all(action='DESELECT')
+
+mesh = bmesh.from_edit_mesh(inner.data)
+
+# Select one side
+for v in mesh.verts:
+    if v.co.y < -0.9:
+        v.select = True
+
+bmesh.update_edit_mesh(inner.data)
+
+# Scale to 0 along X axis (flattens to a plane)
+bpy.ops.transform.resize(
+    value=(1, 0, 1),
+    orient_type='GLOBAL',
+    constraint_axis=(True, False, False)
+)
+
+# Smooth the sharp transition
+bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=5)
+
+bpy.ops.object.mode_set(mode='OBJECT')
+
+# Boolean difference to hollow out
+modifier = outer.modifiers.new(name="Boolean", type='BOOLEAN')
+modifier.operation = 'DIFFERENCE'
+modifier.object = inner
+modifier.solver = 'EXACT'  # or 'EXACT' for better precision
+
+# Apply the modifier
+bpy.context.view_layer.objects.active = outer
+bpy.ops.object.modifier_apply(modifier="Boolean")
+
+# Delete the inner sphere (no longer needed)
+bpy.data.objects.remove(inner, do_unlink=True)
+
+# Now cut it in half to make two halves
+bpy.ops.object.mode_set(mode='EDIT')
+bpy.ops.mesh.select_all(action='SELECT')
+
+bpy.ops.mesh.bisect(
+    plane_co=(0, 0, 0),
+    plane_no=(0, 0, 1),
+    clear_inner=True,
+    clear_outer=False,
+    use_fill=True
+)
+
+bpy.ops.object.mode_set(mode='OBJECT')
