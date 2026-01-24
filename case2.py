@@ -153,3 +153,112 @@ bpy.ops.object.modifier_apply(modifier="Screen")
 bpy.data.objects.remove(screen_hole, do_unlink=True)
 
 bpy.ops.object.mode_set(mode='OBJECT')
+
+
+# Assuming you already have 'outer' shell created
+
+# USB-C port dimensions (in mm, adjust scale as needed)
+# Typical USB-C: 8.4mm wide × 2.6mm tall
+# We'll make it slightly larger for easy insertion: 9mm × 3mm
+
+bpy.ops.mesh.primitive_cube_add(
+    size=2,
+    location=(0, -1.1, 0.03)  # Bottom front of egg
+)
+usbc_hole = bpy.context.active_object
+usbc_hole.scale = (0.09, 0.2, 0.03)  # Width, depth (to go through), height
+bpy.ops.object.transform_apply(scale=True)
+
+# Round the corners for USB-C shape
+bpy.ops.object.mode_set(mode='EDIT')
+bpy.ops.mesh.select_all(action='SELECT')
+bpy.ops.mesh.bevel(offset=0.015, segments=4)  # Rounded corners
+bpy.ops.object.mode_set(mode='OBJECT')
+
+# Cut the hole
+bpy.context.view_layer.objects.active = outer
+modifier = outer.modifiers.new(name="USBC", type='BOOLEAN')
+modifier.operation = 'DIFFERENCE'
+modifier.object = usbc_hole
+bpy.ops.object.modifier_apply(modifier="USBC")
+bpy.data.objects.remove(usbc_hole, do_unlink=True)
+
+
+
+bpy.ops.object.mode_set(mode='OBJECT')
+
+# Assuming you already have your egg shape created as 'outer'
+# Create a cylinder to punch through for the hole
+bpy.ops.mesh.primitive_cylinder_add(
+    radius=0.1,      # Adjust hole size
+    depth=1.0,       # Make it tall enough to go through
+    location=(0, -0.65, 0.5)  # Position at top of egg
+)
+hole_cutter = bpy.context.active_object
+
+# Apply boolean difference
+bpy.context.view_layer.objects.active = outer
+modifier = outer.modifiers.new(name="A", type='BOOLEAN')
+modifier.operation = 'DIFFERENCE'
+modifier.object = hole_cutter
+modifier.solver = 'EXACT'
+
+# Apply the modifier
+bpy.ops.object.modifier_apply(modifier="A")
+
+# Delete the cutter object
+bpy.data.objects.remove(hole_cutter, do_unlink=True)
+
+
+
+
+bpy.ops.object.mode_set(mode='OBJECT')
+
+# Assuming you already have your egg shape created as 'outer'
+# Create a cylinder to punch through for the hole
+bpy.ops.mesh.primitive_cylinder_add(
+    radius=0.1,      # Adjust hole size
+    depth=1.0,       # Make it tall enough to go through
+    location=(-0.25, -0.55, 0.5)  # Position at top of egg
+)
+hole_cutter = bpy.context.active_object
+
+# Apply boolean difference
+bpy.context.view_layer.objects.active = outer
+modifier = outer.modifiers.new(name="B", type='BOOLEAN')
+modifier.operation = 'DIFFERENCE'
+modifier.object = hole_cutter
+modifier.solver = 'EXACT'
+
+# Apply the modifier
+bpy.ops.object.modifier_apply(modifier="B")
+
+# Delete the cutter object
+bpy.data.objects.remove(hole_cutter, do_unlink=True)
+
+
+
+
+bpy.ops.object.mode_set(mode='OBJECT')
+
+# Assuming you already have your egg shape created as 'outer'
+# Create a cylinder to punch through for the hole
+bpy.ops.mesh.primitive_cylinder_add(
+    radius=0.1,      # Adjust hole size
+    depth=1.0,       # Make it tall enough to go through
+    location=(0.25, -0.55, 0.5)  # Position at top of egg
+)
+hole_cutter = bpy.context.active_object
+
+# Apply boolean difference
+bpy.context.view_layer.objects.active = outer
+modifier = outer.modifiers.new(name="C", type='BOOLEAN')
+modifier.operation = 'DIFFERENCE'
+modifier.object = hole_cutter
+modifier.solver = 'EXACT'
+
+# Apply the modifier
+bpy.ops.object.modifier_apply(modifier="C")
+
+# Delete the cutter object
+bpy.data.objects.remove(hole_cutter, do_unlink=True)
