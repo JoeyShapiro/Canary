@@ -2,6 +2,7 @@ import bpy
 import bmesh
 
 # Clear scene
+bpy.ops.object.mode_set(mode='OBJECT')
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)
 
@@ -9,8 +10,10 @@ bpy.ops.object.delete(use_global=False)
 bpy.ops.mesh.primitive_uv_sphere_add(radius=1, segments=64, ring_count=32)
 outer = bpy.context.active_object
 outer.name = "Outer_Shell"
-outer.scale = (1, 1.3, 0.7)  # Make it egg-shaped (taller)
+outer.scale = (1, 1.4, 0.7)  # Make it egg-shaped (taller)
 bpy.ops.object.transform_apply(scale=True)
+
+
 
 bpy.ops.object.mode_set(mode='EDIT')
 bpy.ops.mesh.select_all(action='DESELECT')
@@ -34,9 +37,6 @@ bpy.ops.transform.resize(
 # Smooth the sharp transition
 bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=5)
 
-
-
-
 bpy.ops.mesh.select_all(action='DESELECT')
 
 mesh = bmesh.from_edit_mesh(outer.data)
@@ -48,6 +48,11 @@ for v in mesh.verts:
 
 bmesh.update_edit_mesh(outer.data)
 
+
+
+
+
+######################## inner
 
 bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -74,14 +79,11 @@ bmesh.update_edit_mesh(inner.data)
 bpy.ops.transform.resize(
     value=(1, 0, 1),
     orient_type='GLOBAL',
-    constraint_axis=(False, False, False)
+    constraint_axis=(False, True, False)
 )
 
 # Smooth the sharp transition
 bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=5)
-
-
-
 
 bpy.ops.mesh.select_all(action='DESELECT')
 mesh = bmesh.from_edit_mesh(inner.data)
@@ -92,8 +94,6 @@ for v in mesh.verts:
         v.co.z = 0.50
 
 bmesh.update_edit_mesh(inner.data)
-
-
 
 
 bpy.ops.object.mode_set(mode='OBJECT')
@@ -122,5 +122,34 @@ bpy.ops.mesh.bisect(
     clear_outer=False,
     use_fill=True
 )
+
+
+
+
+########################## face
+bpy.ops.object.mode_set(mode='OBJECT')
+
+# Create a rectangular hole for a screen
+bpy.ops.mesh.primitive_cube_add(
+    size=2,
+    location=(0, 0.1, 0)  # Position on front face
+)
+screen_hole = bpy.context.active_object
+screen_hole.scale = (0.5, 0.5, 1.0)
+bpy.ops.object.transform_apply(scale=True)
+# Round the corners (optional)
+bpy.ops.object.mode_set(mode='EDIT')
+bpy.ops.mesh.select_all(action='SELECT')
+bpy.ops.mesh.bevel(offset=0.05, segments=4)
+bpy.ops.object.mode_set(mode='OBJECT')
+
+# Apply boolean
+bpy.context.view_layer.objects.active = outer
+modifier = outer.modifiers.new(name="Screen", type='BOOLEAN')
+modifier.operation = 'DIFFERENCE'
+modifier.object = screen_hole
+
+bpy.ops.object.modifier_apply(modifier="Screen")
+bpy.data.objects.remove(screen_hole, do_unlink=True)
 
 bpy.ops.object.mode_set(mode='OBJECT')
