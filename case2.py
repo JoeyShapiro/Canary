@@ -262,3 +262,63 @@ bpy.ops.object.modifier_apply(modifier="C")
 
 # Delete the cutter object
 bpy.data.objects.remove(hole_cutter, do_unlink=True)
+
+
+############### venting
+import math
+
+
+for i in range(3):
+    bpy.ops.mesh.primitive_cube_add(
+        size=3,
+        location=(0.15+0.1*i, -1.1, 0.17),
+        scale = (0.05, 0.2, 0.01),
+        rotation=(
+            math.radians(0),   # X: 45°
+            math.radians(35),    # Y: 0°
+            math.radians(0)    # Z: 90°
+        )
+    )
+    usbc_hole = bpy.context.active_object
+    
+    # Round the corners for USB-C shape
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.bevel(offset=0.015, segments=4)  # Rounded corners
+    bpy.ops.object.mode_set(mode='OBJECT')
+    
+    # Cut the hole
+    bpy.context.view_layer.objects.active = outer
+    modifier = outer.modifiers.new(name="vent", type='BOOLEAN')
+    modifier.operation = 'DIFFERENCE'
+    modifier.object = usbc_hole
+    bpy.ops.object.modifier_apply(modifier="vent")
+    bpy.data.objects.remove(usbc_hole, do_unlink=True)
+
+
+for i in range(3):
+    bpy.ops.mesh.primitive_cube_add(
+        size=3,
+        location=(-0.15-0.1*i, -1.1, 0.17),
+        scale = (0.05, 0.2, 0.01),
+        rotation=(
+            math.radians(0),   # X: 45°
+            math.radians(-35),    # Y: 0°
+            math.radians(0)    # Z: 90°
+        )
+    )
+    usbc_hole = bpy.context.active_object
+    
+    # Round the corners for USB-C shape
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.bevel(offset=0.015, segments=4)  # Rounded corners
+    bpy.ops.object.mode_set(mode='OBJECT')
+    
+    # Cut the hole
+    bpy.context.view_layer.objects.active = outer
+    modifier = outer.modifiers.new(name="vent", type='BOOLEAN')
+    modifier.operation = 'DIFFERENCE'
+    modifier.object = usbc_hole
+    bpy.ops.object.modifier_apply(modifier="vent")
+    bpy.data.objects.remove(usbc_hole, do_unlink=True)
