@@ -1,13 +1,21 @@
 import bpy
 import bmesh
 
+SEGMENTS=64
+RING_COUNT=32
+REPEAT=5
+if True: # Production
+    SEGMENTS=256
+    RING_COUNT=128
+    REPEAT=50
+
 # Clear scene
 bpy.ops.object.mode_set(mode='OBJECT')
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)
 
 # Create outer egg shape (UV sphere scaled vertically)
-bpy.ops.mesh.primitive_uv_sphere_add(radius=1, segments=64, ring_count=32)
+bpy.ops.mesh.primitive_uv_sphere_add(radius=32, segments=SEGMENTS, ring_count=RING_COUNT)
 outer = bpy.context.active_object
 outer.name = "Outer_Shell"
 outer.scale = (1, 1.4, 0.7)  # Make it egg-shaped (taller)
@@ -22,7 +30,7 @@ mesh = bmesh.from_edit_mesh(outer.data)
 
 # Select one side
 for v in mesh.verts:
-    if v.co.y < -0.9:
+    if v.co.y < 30*-0.9:
         v.select = True
 
 bmesh.update_edit_mesh(outer.data)
@@ -35,7 +43,7 @@ bpy.ops.transform.resize(
 )
 
 # Smooth the sharp transition
-bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=5)
+bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=REPEAT)
 
 bpy.ops.mesh.select_all(action='DESELECT')
 
@@ -43,8 +51,8 @@ mesh = bmesh.from_edit_mesh(outer.data)
 
 # Select one side
 for v in mesh.verts:
-    if v.co.z > 0.55:
-        v.co.z = 0.55
+    if v.co.z > 30*0.55:
+        v.co.z = 30*0.55
 
 bmesh.update_edit_mesh(outer.data)
 
@@ -57,7 +65,7 @@ bmesh.update_edit_mesh(outer.data)
 bpy.ops.object.mode_set(mode='OBJECT')
 
 # Create inner sphere (slightly smaller for wall thickness)
-bpy.ops.mesh.primitive_uv_sphere_add(radius=0.95, segments=64, ring_count=32)
+bpy.ops.mesh.primitive_uv_sphere_add(radius=28, segments=SEGMENTS, ring_count=RING_COUNT)
 inner = bpy.context.active_object
 inner.name = "Inner_Shell"
 inner.scale = (1, 1.3, 0.7)  # Match the egg shape
@@ -70,7 +78,7 @@ mesh = bmesh.from_edit_mesh(inner.data)
 
 # Select one side
 for v in mesh.verts:
-    if v.co.y < -0.9:
+    if v.co.y < 28*-0.9:
         v.select = True
 
 bmesh.update_edit_mesh(inner.data)
@@ -83,15 +91,15 @@ bpy.ops.transform.resize(
 )
 
 # Smooth the sharp transition
-bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=5)
+bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=REPEAT)
 
 bpy.ops.mesh.select_all(action='DESELECT')
 mesh = bmesh.from_edit_mesh(inner.data)
 
 # Select one side
 for v in mesh.verts:
-    if v.co.z > 0.50:
-        v.co.z = 0.50
+    if v.co.z > 28*0.50:
+        v.co.z = 28*0.50
 
 bmesh.update_edit_mesh(inner.data)
 
@@ -131,15 +139,15 @@ bpy.ops.object.mode_set(mode='OBJECT')
 
 # Create a rectangular hole for a screen
 bpy.ops.mesh.primitive_cube_add(
-    size=1,
-    location=(0, 0.1, 0.5)  # Position on front face
+    size=30,
+    location=(0, 30*0.1, 30*0.5)  # Position on front face
 )
 screen_hole = bpy.context.active_object
 bpy.ops.object.transform_apply(scale=True)
 # Round the corners (optional)
 bpy.ops.object.mode_set(mode='EDIT')
 bpy.ops.mesh.select_all(action='SELECT')
-bpy.ops.mesh.bevel(offset=0.05, segments=4)
+bpy.ops.mesh.bevel(offset=30*0.05, segments=4)
 bpy.ops.object.mode_set(mode='OBJECT')
 
 # Apply boolean
@@ -161,8 +169,8 @@ bpy.ops.object.mode_set(mode='OBJECT')
 # We'll make it slightly larger for easy insertion: 9mm × 3mm
 
 bpy.ops.mesh.primitive_cube_add(
-    size=1,
-    location=(0, -1.1, 0.03),
+    size=30,
+    location=(0, 30*-1.1, 30*0.03),
     scale = (0.18, 0.4, 0.06)
 )
 usbc_hole = bpy.context.active_object
@@ -171,7 +179,7 @@ bpy.ops.object.transform_apply(scale=True)
 # Round the corners for USB-C shape
 bpy.ops.object.mode_set(mode='EDIT')
 bpy.ops.mesh.select_all(action='SELECT')
-bpy.ops.mesh.bevel(offset=0.015, segments=4)  # Rounded corners
+bpy.ops.mesh.bevel(offset=30*0.015, segments=4)  # Rounded corners
 bpy.ops.object.mode_set(mode='OBJECT')
 
 # Cut the hole
@@ -189,9 +197,9 @@ bpy.ops.object.mode_set(mode='OBJECT')
 # Assuming you already have your egg shape created as 'outer'
 # Create a cylinder to punch through for the hole
 bpy.ops.mesh.primitive_cylinder_add(
-    radius=0.1,      # Adjust hole size
-    depth=1.0,       # Make it tall enough to go through
-    location=(0, -0.65, 0.5)  # Position at top of egg
+    radius=3.5,      # Adjust hole size
+    depth=30,       # Make it tall enough to go through
+    location=(0, 30*-0.9, 30*0.5)  # Position at top of egg
 )
 hole_cutter = bpy.context.active_object
 
@@ -216,9 +224,9 @@ bpy.ops.object.mode_set(mode='OBJECT')
 # Assuming you already have your egg shape created as 'outer'
 # Create a cylinder to punch through for the hole
 bpy.ops.mesh.primitive_cylinder_add(
-    radius=0.1,      # Adjust hole size
-    depth=1.0,       # Make it tall enough to go through
-    location=(-0.25, -0.55, 0.5)  # Position at top of egg
+    radius=3.5,      # Adjust hole size
+    depth=30,       # Make it tall enough to go through
+    location=(30*-0.3, 30*-0.7, 30*0.5)  # Position at top of egg
 )
 hole_cutter = bpy.context.active_object
 
@@ -243,9 +251,9 @@ bpy.ops.object.mode_set(mode='OBJECT')
 # Assuming you already have your egg shape created as 'outer'
 # Create a cylinder to punch through for the hole
 bpy.ops.mesh.primitive_cylinder_add(
-    radius=0.1,      # Adjust hole size
-    depth=1.0,       # Make it tall enough to go through
-    location=(0.25, -0.55, 0.5)  # Position at top of egg
+    radius=3.5,      # Adjust hole size
+    depth=30,       # Make it tall enough to go through
+    location=(30*0.3, 30*-0.7, 30*0.5)  # Position at top of egg
 )
 hole_cutter = bpy.context.active_object
 
@@ -269,8 +277,8 @@ import math
 
 for i in range(3):
     bpy.ops.mesh.primitive_cube_add(
-        size=1,
-        location=(0.15+0.1*i, -1.1, 0.17),
+        size=30,
+        location=(30*(0.15+0.1*i), 30*-1.1, 30*0.17),
         scale = (0.15, 0.6, 0.03),
         rotation=(
             math.radians(0),   # X: 45°
@@ -283,7 +291,7 @@ for i in range(3):
     # Round the corners for USB-C shape
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.mesh.bevel(offset=0.015, segments=4)  # Rounded corners
+    bpy.ops.mesh.bevel(offset=30*0.015, segments=4)  # Rounded corners
     bpy.ops.object.mode_set(mode='OBJECT')
     
     # Cut the hole
@@ -297,8 +305,8 @@ for i in range(3):
 
 for i in range(3):
     bpy.ops.mesh.primitive_cube_add(
-        size=1,
-        location=(-0.15-0.1*i, -1.1, 0.17),
+        size=30,
+        location=(30*(-0.15-0.1*i), 30*-1.1, 30*0.17),
         scale = (0.15, 0.6, 0.03),
         rotation=(
             math.radians(0),   # X: 45°
@@ -311,7 +319,7 @@ for i in range(3):
     # Round the corners for USB-C shape
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.mesh.bevel(offset=0.015, segments=4)  # Rounded corners
+    bpy.ops.mesh.bevel(offset=30*0.015, segments=4)  # Rounded corners
     bpy.ops.object.mode_set(mode='OBJECT')
     
     # Cut the hole
