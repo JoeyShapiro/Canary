@@ -131,11 +131,10 @@ bpy.ops.object.mode_set(mode='OBJECT')
 
 # Create a rectangular hole for a screen
 bpy.ops.mesh.primitive_cube_add(
-    size=2,
-    location=(0, 0.1, 0)  # Position on front face
+    size=1,
+    location=(0, 0.1, 0.5)  # Position on front face
 )
 screen_hole = bpy.context.active_object
-screen_hole.scale = (0.5, 0.5, 1.0)
 bpy.ops.object.transform_apply(scale=True)
 # Round the corners (optional)
 bpy.ops.object.mode_set(mode='EDIT')
@@ -162,11 +161,11 @@ bpy.ops.object.mode_set(mode='OBJECT')
 # We'll make it slightly larger for easy insertion: 9mm × 3mm
 
 bpy.ops.mesh.primitive_cube_add(
-    size=2,
-    location=(0, -1.1, 0.03)  # Bottom front of egg
+    size=1,
+    location=(0, -1.1, 0.03),
+    scale = (0.18, 0.4, 0.06)
 )
 usbc_hole = bpy.context.active_object
-usbc_hole.scale = (0.09, 0.2, 0.03)  # Width, depth (to go through), height
 bpy.ops.object.transform_apply(scale=True)
 
 # Round the corners for USB-C shape
@@ -270,9 +269,9 @@ import math
 
 for i in range(3):
     bpy.ops.mesh.primitive_cube_add(
-        size=3,
+        size=1,
         location=(0.15+0.1*i, -1.1, 0.17),
-        scale = (0.05, 0.2, 0.01),
+        scale = (0.15, 0.6, 0.03),
         rotation=(
             math.radians(0),   # X: 45°
             math.radians(35),    # Y: 0°
@@ -298,9 +297,9 @@ for i in range(3):
 
 for i in range(3):
     bpy.ops.mesh.primitive_cube_add(
-        size=3,
+        size=1,
         location=(-0.15-0.1*i, -1.1, 0.17),
-        scale = (0.05, 0.2, 0.01),
+        scale = (0.15, 0.6, 0.03),
         rotation=(
             math.radians(0),   # X: 45°
             math.radians(-35),    # Y: 0°
