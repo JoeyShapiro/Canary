@@ -15,10 +15,10 @@ bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)
 
 # Create outer egg shape (UV sphere scaled vertically)
-bpy.ops.mesh.primitive_uv_sphere_add(radius=32, segments=SEGMENTS, ring_count=RING_COUNT)
+bpy.ops.mesh.primitive_uv_sphere_add(radius=34, segments=SEGMENTS, ring_count=RING_COUNT)
 outer = bpy.context.active_object
 outer.name = "Outer_Shell"
-outer.scale = (1, 1.4, 0.7)  # Make it egg-shaped (taller)
+outer.scale = (1, 1.5, 0.7)  # Make it egg-shaped (taller)
 bpy.ops.object.transform_apply(scale=True)
 
 
@@ -37,13 +37,13 @@ bmesh.update_edit_mesh(outer.data)
 
 # Scale to 0 along X axis (flattens to a plane)
 bpy.ops.transform.resize(
-    value=(1, 0, 1),
+    value=(0.9, 0, 0.9),
     orient_type='GLOBAL',
-    constraint_axis=(False, True, False) # not sure what this does
+    constraint_axis=(True, True, True) # not sure what this does
 )
 
 # Smooth the sharp transition
-bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=REPEAT)
+bpy.ops.mesh.vertices_smooth(factor=1, repeat=REPEAT)
 
 bpy.ops.mesh.select_all(action='DESELECT')
 
@@ -65,10 +65,10 @@ bmesh.update_edit_mesh(outer.data)
 bpy.ops.object.mode_set(mode='OBJECT')
 
 # Create inner sphere (slightly smaller for wall thickness)
-bpy.ops.mesh.primitive_uv_sphere_add(radius=28, segments=SEGMENTS, ring_count=RING_COUNT)
+bpy.ops.mesh.primitive_uv_sphere_add(radius=32, segments=SEGMENTS, ring_count=RING_COUNT)
 inner = bpy.context.active_object
 inner.name = "Inner_Shell"
-inner.scale = (1, 1.3, 0.7)  # Match the egg shape
+inner.scale = (1, 1.5, 0.7)  # Match the egg shape
 bpy.ops.object.transform_apply(scale=True)
 
 bpy.ops.object.mode_set(mode='EDIT')
@@ -85,13 +85,13 @@ bmesh.update_edit_mesh(inner.data)
 
 # Scale to 0 along X axis (flattens to a plane)
 bpy.ops.transform.resize(
-    value=(1, 0, 1),
+    value=(0.9, 0, 0.9),
     orient_type='GLOBAL',
-    constraint_axis=(False, True, False)
+    constraint_axis=(True, True, True)
 )
 
 # Smooth the sharp transition
-bpy.ops.mesh.vertices_smooth(factor=0.5, repeat=REPEAT)
+bpy.ops.mesh.vertices_smooth(factor=1, repeat=REPEAT)
 
 bpy.ops.mesh.select_all(action='DESELECT')
 mesh = bmesh.from_edit_mesh(inner.data)
@@ -169,9 +169,9 @@ bpy.ops.object.mode_set(mode='OBJECT')
 # We'll make it slightly larger for easy insertion: 9mm × 3mm
 
 bpy.ops.mesh.primitive_cube_add(
-    size=30,
-    location=(0, 30*-1.1, 30*0.03),
-    scale = (0.18, 0.4, 0.06)
+    size=1,
+    location=(0, 30*-1.1, 30*0.04),
+    scale = (8.5, 30, 2.6)
 )
 usbc_hole = bpy.context.active_object
 bpy.ops.object.transform_apply(scale=True)
@@ -199,7 +199,7 @@ bpy.ops.object.mode_set(mode='OBJECT')
 bpy.ops.mesh.primitive_cylinder_add(
     radius=3.5,      # Adjust hole size
     depth=30,       # Make it tall enough to go through
-    location=(0, 30*-0.9, 30*0.5)  # Position at top of egg
+    location=(0, 30*-1, 30*0.5)  # Position at top of egg
 )
 hole_cutter = bpy.context.active_object
 
@@ -226,7 +226,7 @@ bpy.ops.object.mode_set(mode='OBJECT')
 bpy.ops.mesh.primitive_cylinder_add(
     radius=3.5,      # Adjust hole size
     depth=30,       # Make it tall enough to go through
-    location=(30*-0.3, 30*-0.7, 30*0.5)  # Position at top of egg
+    location=(30*-0.35, 30*-0.7, 30*0.55)  # Position at top of egg
 )
 hole_cutter = bpy.context.active_object
 
@@ -253,7 +253,7 @@ bpy.ops.object.mode_set(mode='OBJECT')
 bpy.ops.mesh.primitive_cylinder_add(
     radius=3.5,      # Adjust hole size
     depth=30,       # Make it tall enough to go through
-    location=(30*0.3, 30*-0.7, 30*0.5)  # Position at top of egg
+    location=(30*0.35, 30*-0.7, 30*0.55)  # Position at top of egg
 )
 hole_cutter = bpy.context.active_object
 
@@ -278,8 +278,8 @@ import math
 for i in range(3):
     bpy.ops.mesh.primitive_cube_add(
         size=30,
-        location=(30*(0.15+0.1*i), 30*-1.1, 30*0.17),
-        scale = (0.15, 0.6, 0.03),
+        location=(30*(0.2+0.1*i), 30*-1.1, 30*0.22),
+        scale = (0.25, 0.6, 0.03),
         rotation=(
             math.radians(0),   # X: 45°
             math.radians(35),    # Y: 0°
@@ -306,8 +306,8 @@ for i in range(3):
 for i in range(3):
     bpy.ops.mesh.primitive_cube_add(
         size=30,
-        location=(30*(-0.15-0.1*i), 30*-1.1, 30*0.17),
-        scale = (0.15, 0.6, 0.03),
+        location=(30*(-0.2-0.1*i), 30*-1.1, 30*0.22),
+        scale = (0.25, 0.6, 0.03),
         rotation=(
             math.radians(0),   # X: 45°
             math.radians(-35),    # Y: 0°
