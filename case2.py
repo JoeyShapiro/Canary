@@ -18,7 +18,7 @@ bpy.ops.object.delete(use_global=False)
 bpy.ops.mesh.primitive_uv_sphere_add(radius=34, segments=SEGMENTS, ring_count=RING_COUNT)
 outer = bpy.context.active_object
 outer.name = "Outer_Shell"
-outer.scale = (1, 1.5, 0.7)  # Make it egg-shaped (taller)
+outer.scale = (1, 1.6, 0.7)  # Make it egg-shaped (taller)
 bpy.ops.object.transform_apply(scale=True)
 
 
@@ -68,7 +68,7 @@ bpy.ops.object.mode_set(mode='OBJECT')
 bpy.ops.mesh.primitive_uv_sphere_add(radius=32, segments=SEGMENTS, ring_count=RING_COUNT)
 inner = bpy.context.active_object
 inner.name = "Inner_Shell"
-inner.scale = (1, 1.5, 0.7)  # Match the egg shape
+inner.scale = (1, 1.6, 0.7)  # Match the egg shape
 bpy.ops.object.transform_apply(scale=True)
 
 bpy.ops.object.mode_set(mode='EDIT')
@@ -139,8 +139,8 @@ bpy.ops.object.mode_set(mode='OBJECT')
 
 # Create a rectangular hole for a screen
 bpy.ops.mesh.primitive_cube_add(
-    size=30,
-    location=(0, 30*0.1, 30*0.5)  # Position on front face
+    size=28,
+    location=(0, 30*0.2, 30*0.5)  # Position on front face
 )
 screen_hole = bpy.context.active_object
 bpy.ops.object.transform_apply(scale=True)
@@ -197,9 +197,9 @@ bpy.ops.object.mode_set(mode='OBJECT')
 # Assuming you already have your egg shape created as 'outer'
 # Create a cylinder to punch through for the hole
 bpy.ops.mesh.primitive_cylinder_add(
-    radius=3.5,      # Adjust hole size
+    radius=3.7,      # Adjust hole size
     depth=30,       # Make it tall enough to go through
-    location=(0, 30*-1, 30*0.5)  # Position at top of egg
+    location=(0, 30*-0.95, 30*0.5)  # Position at top of egg
 )
 hole_cutter = bpy.context.active_object
 
@@ -224,9 +224,9 @@ bpy.ops.object.mode_set(mode='OBJECT')
 # Assuming you already have your egg shape created as 'outer'
 # Create a cylinder to punch through for the hole
 bpy.ops.mesh.primitive_cylinder_add(
-    radius=3.5,      # Adjust hole size
+    radius=3.7,      # Adjust hole size
     depth=30,       # Make it tall enough to go through
-    location=(30*-0.35, 30*-0.7, 30*0.55)  # Position at top of egg
+    location=(30*-0.35, 30*-0.6, 30*0.55)  # Position at top of egg
 )
 hole_cutter = bpy.context.active_object
 
@@ -251,9 +251,9 @@ bpy.ops.object.mode_set(mode='OBJECT')
 # Assuming you already have your egg shape created as 'outer'
 # Create a cylinder to punch through for the hole
 bpy.ops.mesh.primitive_cylinder_add(
-    radius=3.5,      # Adjust hole size
+    radius=3.7,      # Adjust hole size
     depth=30,       # Make it tall enough to go through
-    location=(30*0.35, 30*-0.7, 30*0.55)  # Position at top of egg
+    location=(30*0.35, 30*-0.6, 30*0.55)  # Position at top of egg
 )
 hole_cutter = bpy.context.active_object
 
