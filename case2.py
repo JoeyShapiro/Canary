@@ -199,7 +199,7 @@ bpy.ops.object.mode_set(mode='OBJECT')
 bpy.ops.mesh.primitive_cylinder_add(
     radius=3.7,      # Adjust hole size
     depth=30,       # Make it tall enough to go through
-    location=(0, 30*-0.95, 30*0.5)  # Position at top of egg
+    location=(0, 30*-1, 30*0.5)  # Position at top of egg
 )
 hole_cutter = bpy.context.active_object
 
@@ -226,7 +226,7 @@ bpy.ops.object.mode_set(mode='OBJECT')
 bpy.ops.mesh.primitive_cylinder_add(
     radius=3.7,      # Adjust hole size
     depth=30,       # Make it tall enough to go through
-    location=(30*-0.4, 30*-0.6, 30*0.55)  # Position at top of egg
+    location=(30*-0.4, 30*-0.65, 30*0.55)  # Position at top of egg
 )
 hole_cutter = bpy.context.active_object
 
@@ -253,7 +253,7 @@ bpy.ops.object.mode_set(mode='OBJECT')
 bpy.ops.mesh.primitive_cylinder_add(
     radius=3.7,      # Adjust hole size
     depth=30,       # Make it tall enough to go through
-    location=(30*0.4, 30*-0.6, 30*0.55)  # Position at top of egg
+    location=(30*0.4, 30*-0.65, 30*0.55)  # Position at top of egg
 )
 hole_cutter = bpy.context.active_object
 
