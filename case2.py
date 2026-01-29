@@ -18,7 +18,7 @@ bpy.ops.object.delete(use_global=False)
 bpy.ops.mesh.primitive_uv_sphere_add(radius=34, segments=SEGMENTS, ring_count=RING_COUNT)
 outer = bpy.context.active_object
 outer.name = "Outer_Shell"
-outer.scale = (1.1, 1.6, 0.7)  # Make it egg-shaped (taller)
+outer.scale = (1.0, 1.55, 0.7)  # Make it egg-shaped (taller)
 bpy.ops.object.transform_apply(scale=True)
 
 
@@ -68,7 +68,7 @@ bpy.ops.object.mode_set(mode='OBJECT')
 bpy.ops.mesh.primitive_uv_sphere_add(radius=32, segments=SEGMENTS, ring_count=RING_COUNT)
 inner = bpy.context.active_object
 inner.name = "Inner_Shell"
-inner.scale = (1.1, 1.6, 0.7)  # Match the egg shape
+inner.scale = (1.0, 1.55, 0.7)  # Match the egg shape
 bpy.ops.object.transform_apply(scale=True)
 
 bpy.ops.object.mode_set(mode='EDIT')
