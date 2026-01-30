@@ -137,10 +137,34 @@ bpy.ops.mesh.bisect(
 ########################## face
 bpy.ops.object.mode_set(mode='OBJECT')
 
-# Create a rectangular hole for a screen
-bpy.ops.mesh.primitive_cube_add(
-    size=28,
-    location=(0, 30*0.3, 30*0.5)  # Position on front face
+## Create a rectangular hole for a screen
+#bpy.ops.mesh.primitive_cube_add(
+#    size=28,
+#    location=(0, 30*0.3, 30*0.5)  # Position on front face
+#)
+#screen_hole = bpy.context.active_object
+#bpy.ops.object.transform_apply(scale=True)
+## Round the corners (optional)
+#bpy.ops.object.mode_set(mode='EDIT')
+#bpy.ops.mesh.select_all(action='SELECT')
+#bpy.ops.mesh.bevel(offset=30*0.05, segments=4)
+#bpy.ops.object.mode_set(mode='OBJECT')
+
+
+import math
+# Create a 4-sided pyramid (square base)
+# angle = atan(radius2/depth) => 0.528
+bpy.ops.mesh.primitive_cone_add(
+    vertices=4,      # 4 sides = square pyramid
+    radius1=0,       # Base radius (0 = pointed)
+    radius2=35,       # Top radius 
+    depth=60,         # Height
+    location=(0, 30*0.3, 9), # whatever, can do lots. best place to intersect
+    rotation=(
+        math.radians(0),
+        math.radians(0),
+        math.radians(45)
+    )
 )
 screen_hole = bpy.context.active_object
 bpy.ops.object.transform_apply(scale=True)
@@ -158,8 +182,6 @@ modifier.object = screen_hole
 
 bpy.ops.object.modifier_apply(modifier="Screen")
 bpy.data.objects.remove(screen_hole, do_unlink=True)
-
-bpy.ops.object.mode_set(mode='OBJECT')
 
 
 # Assuming you already have 'outer' shell created
