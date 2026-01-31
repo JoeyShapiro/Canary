@@ -4,7 +4,7 @@ import bmesh
 SEGMENTS=64
 RING_COUNT=32
 REPEAT=5
-if True: # Production
+if False: # Production
     SEGMENTS=256
     RING_COUNT=128
     REPEAT=50
@@ -157,8 +157,8 @@ import math
 bpy.ops.mesh.primitive_cone_add(
     vertices=4,      # 4 sides = square pyramid
     radius1=0,       # Base radius (0 = pointed)
-    radius2=35,       # Top radius 
-    depth=60,         # Height
+    radius2=30,       # Top radius 
+    depth=30,         # Height
     location=(0, 30*0.3, 9), # whatever, can do lots. best place to intersect
     rotation=(
         math.radians(0),
