@@ -4,7 +4,7 @@ import bmesh
 SEGMENTS=64
 RING_COUNT=32
 REPEAT=5
-if False: # Production
+if True: # Production
     SEGMENTS=256
     RING_COUNT=128
     REPEAT=50
@@ -192,8 +192,8 @@ bpy.data.objects.remove(screen_hole, do_unlink=True)
 
 bpy.ops.mesh.primitive_cube_add(
     size=1,
-    location=(0, 30*-1.1, 30*0.04),
-    scale = (8.5, 30, 2.6)
+    location=(0, 30*-1.1, 30*0.14),
+    scale = (8.8, 30, 3.1)
 )
 usbc_hole = bpy.context.active_object
 bpy.ops.object.transform_apply(scale=True)
