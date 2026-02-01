@@ -193,7 +193,7 @@ bpy.data.objects.remove(screen_hole, do_unlink=True)
 bpy.ops.mesh.primitive_cube_add(
     size=1,
     location=(0, 30*-1.1, 30*0.14),
-    scale = (8.8, 30, 3.1)
+    scale = (9, 30, 3.3)
 )
 usbc_hole = bpy.context.active_object
 bpy.ops.object.transform_apply(scale=True)

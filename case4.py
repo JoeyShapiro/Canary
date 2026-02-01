@@ -60,3 +60,5 @@ for i in range(3):
 
     bpy.ops.object.modifier_apply(modifier="Screen")
     bpy.data.objects.remove(screen_hole, do_unlink=True)
+    
+    bpy.ops.object.mode_set(mode='OBJECT')
